@@ -35,6 +35,11 @@ jobs:
       - name: uv sync
         run: uv sync
 
+      - name: Ensure pip in venv
+        run: |
+          uv run python -m ensurepip --upgrade
+          uv run python -m pip install --upgrade pip setuptools wheel
+
       # 5. Build the package (C++ extension)
       - name: Build extension
         run: uv run python -m pip install .
