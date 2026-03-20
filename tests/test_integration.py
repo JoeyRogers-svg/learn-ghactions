@@ -1,5 +1,5 @@
 from fast_module import fast_add
-from src import main
+import main
 
 def test_main(capsys):
     main.main()
