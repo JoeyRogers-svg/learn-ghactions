@@ -50,6 +50,8 @@ jobs:
 
       # 7. Run unit & integration tests
       - name: Run pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
         run: uv run pytest tests/ --maxfail=1 --disable-warnings -v
 
       # 8. Optional: List build artifacts
