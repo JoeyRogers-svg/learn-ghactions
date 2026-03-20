@@ -3,8 +3,23 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# C extensions
+# macOS temp files
+.DS_Store
+
+# C++ build artifacts
+*.o
+*.obj
 *.so
+*.dll
+*.dylib
+*.lib
+*.exp
+*.pdb
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+build/
 
 # Distribution / packaging
 .Python

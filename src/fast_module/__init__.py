@@ -1,0 +1,1 @@
+from .fast_module import fast_add
