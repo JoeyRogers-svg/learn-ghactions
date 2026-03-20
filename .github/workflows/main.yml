@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   push:
@@ -7,51 +7,35 @@ on:
     branches: [main]
 
 jobs:
-  build-test:
-    name: Build & Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+  build-and-test:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-      # 1. Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # Checkout the repo
+      - uses: actions/checkout@v3
 
-      # 2. Set up Python
-      - name: Setup Python ${{ matrix.python-version }}
+      # Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      # 3. Install uv
-      - name: Install uv
-        run: pip install uv
+      # Upgrade pip, setuptools, wheel
+      - name: Upgrade pip and build tools
+        run: python -m pip install --upgrade pip setuptools wheel
 
-      # 4. Sync dependencies (uv.lock)
-      - name: uv sync
-        run: uv sync
+      # Install pybind11 for building C++ extension
+      - name: Install build dependencies
+        run: python -m pip install pybind11
 
-      - name: Ensure pip in venv
-        run: |
-          uv run python -m ensurepip --upgrade
-          uv run python -m pip install --upgrade pip setuptools wheel
+      # Install the package in editable mode
+      - name: Install package
+        run: python -m pip install -e .
 
-      # 5. Build the package (C++ extension)
-      - name: Build extension
-        run: uv run python -m pip install .
-
-      # 6. Verify the module loads correctly
-      - name: Smoke test import
-        run: uv run python -c "from fast_module import fast_add; print(fast_add(2, 3))"
-
-      # 7. Run unit & integration tests
-      - name: Run pytest
-        run: uv run env PYTHONPATH="${{ github.workspace }}/src" pytest tests/ --maxfail=1 --disable-warnings -v
-
-      # 8. Optional: List build artifacts
-      - name: Verify build artifacts
-        run: ls -lh src/fast_module/
+      # Run pytest (unit + integration tests)
+      - name: Run tests
+        run: pytest tests/ --maxfail=1 --disable-warnings -v
